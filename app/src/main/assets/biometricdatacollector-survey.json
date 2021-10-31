@@ -1,0 +1,12 @@
+{
+  "questions":[
+    {
+      "text": "What emotion would you say you feel the most?",
+      "type": "text"
+    },
+    {
+      "text": "Are you feeling stressed?",
+      "type": "yes/no"
+    }
+  ]
+}
