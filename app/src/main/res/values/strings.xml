@@ -6,8 +6,10 @@
     <string name="delete_button_text">Delete files</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="survey_button">Start survey</string>
     <string name="next_question_button">Next question</string>
+    <string name="survey_done_text">Thank you for filling out the survey!</string>
+    <string name="question_loading_fail_text">Question failed to load.</string>
+    <string name="finish_survey_button_text">Finish survey</string>
+    <string name="question_loading_error_text">Error while loading question.</string>
 </resources>

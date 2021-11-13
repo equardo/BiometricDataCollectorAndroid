@@ -7,43 +7,25 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.TextView;
 
 import com.trzebiatowski.serkowski.biometricdatacollector.R;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link TextQuestionFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class TextQuestionFragment extends Fragment {
+public class TextQuestionFragment extends Fragment implements QuestionFragment{
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private static final String ARG_QUESTION_TEXT = "question_text";
+    private String questionText;
+    private EditText answerTextView;
 
     public TextQuestionFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment TextQuestionFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static TextQuestionFragment newInstance(String param1, String param2) {
+    public static TextQuestionFragment newInstance(String questionText) {
         TextQuestionFragment fragment = new TextQuestionFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+        args.putString(ARG_QUESTION_TEXT, questionText);
         fragment.setArguments(args);
         return fragment;
     }
@@ -51,16 +33,34 @@ public class TextQuestionFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_text_question, container, false);
+
+        if (container != null) {
+            container.removeAllViews();
+        }
+
+        if (getArguments() != null) {
+            questionText = getArguments().getString(ARG_QUESTION_TEXT);
+        }
+
+        View inf = inflater.inflate(R.layout.fragment_text_question, container, false);
+
+        answerTextView = inf.findViewById(R.id.answer_input);
+        TextView questionTextView = inf.findViewById(R.id.question_text);
+        questionTextView.setText(questionText);
+
+        return inf;
+    }
+
+    public String getAnswer() {
+        View v = getView();
+        if(v != null) {
+            answerTextView = v.findViewById(R.id.answer_input);
+        }
+        return answerTextView.getText().toString();
     }
 }

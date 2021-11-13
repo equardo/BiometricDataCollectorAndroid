@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".fragment.TextQuestionFragment">
+    tools:context=".fragment.MultipleChoiceQuestionFragment">
+
 
     <TextView
         android:id="@+id/question_text"
@@ -12,19 +13,27 @@
         android:layout_height="wrap_content"
         android:text="@string/question_loading_fail_text"
         android:textSize="18sp"
-        app:layout_constraintBottom_toTopOf="@id/answer_input"
+        app:layout_constraintBottom_toTopOf="@id/answers_scroll"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <EditText
-        android:id="@+id/answer_input"
-        android:layout_height="wrap_content"
+    <ScrollView
+        android:id="@+id/answers_scroll"
         android:layout_width="match_parent"
-        android:inputType="text"
+        android:layout_height="wrap_content"
+        app:layout_constrainedHeight="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/question_text"/>
+        app:layout_constraintTop_toBottomOf="@id/question_text">
+
+        <RadioGroup
+            android:id="@+id/answers_radio_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"/>
+
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
