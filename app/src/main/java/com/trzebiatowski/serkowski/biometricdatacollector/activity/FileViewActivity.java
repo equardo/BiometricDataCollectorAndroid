@@ -23,6 +23,7 @@ public class FileViewActivity extends AppCompatActivity {
     private final String accPath = "acc_data.txt";
     private final String gyroPath = "gyro_data.txt";
     private final String touchPath = "touch_data.txt";
+    private final String swipePath = "swipe_data.txt";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,8 +31,8 @@ public class FileViewActivity extends AppCompatActivity {
         setContentView(R.layout.file_content_view);
         accFileText = findViewById(R.id.accFileView);
         gyroFileText = findViewById(R.id.gyroFileView);
-        accFileText.setText(readFromFile(accPath));
-        gyroFileText.setText(readFromFile(touchPath));
+        accFileText.setText(readFromFile(touchPath));
+        gyroFileText.setText(readFromFile(swipePath));
     }
 
     private String readFromFile(String filepath) {

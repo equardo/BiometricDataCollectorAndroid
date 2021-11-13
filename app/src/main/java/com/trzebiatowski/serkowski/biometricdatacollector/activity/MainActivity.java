@@ -1,5 +1,7 @@
 package com.trzebiatowski.serkowski.biometricdatacollector.activity;
 
+import static com.trzebiatowski.serkowski.biometricdatacollector.utility.FileOperations.writeToFile;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
@@ -99,30 +101,13 @@ public class MainActivity extends AppCompatActivity {
     public void deleteFilesContent(View v) {
         String accPath = "acc_data.txt";
         String gyroPath = "gyro_data.txt";
-        writeToFile("", accPath, true);
-        writeToFile("", gyroPath, true);
-    }
+        String touchPath = "touch_data.txt";
+        String swipePath = "swipe_data.txt";
 
-    private void writeToFile(String data, String filepath, boolean overwrite) {
-        try {
-            FileOutputStream fOut;
-
-            if(overwrite) {
-                fOut = getApplicationContext().openFileOutput(filepath, Context.MODE_PRIVATE);
-            }
-            else {
-                fOut = getApplicationContext().openFileOutput(filepath, Context.MODE_APPEND);
-            }
-
-            OutputStreamWriter osw = new OutputStreamWriter(fOut);
-
-            osw.write(data);
-
-            osw.close();
-        }
-        catch (IOException e) {
-            Log.e("Exception", "File write failed: " + e.toString());
-        }
+        writeToFile(getApplicationContext(), "", accPath, true);
+        writeToFile(getApplicationContext(), "", gyroPath, true);
+        writeToFile(getApplicationContext(), "", touchPath, true);
+        writeToFile(getApplicationContext(), "", swipePath, true);
     }
 
     private boolean checkWriteExternalPermission()
