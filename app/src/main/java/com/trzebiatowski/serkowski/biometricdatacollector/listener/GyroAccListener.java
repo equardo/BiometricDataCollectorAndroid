@@ -1,4 +1,4 @@
-package com.trzebiatowski.serkowski.biometricdatacollector;
+package com.trzebiatowski.serkowski.biometricdatacollector.listener;
 
 import static com.trzebiatowski.serkowski.biometricdatacollector.utility.FileOperations.writeToFile;
 

@@ -1,4 +1,4 @@
-package com.trzebiatowski.serkowski.biometricdatacollector.activity;
+package com.trzebiatowski.serkowski.biometricdatacollector.ui.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -9,8 +9,6 @@ import android.widget.TextView;
 import com.trzebiatowski.serkowski.biometricdatacollector.R;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,8 +29,11 @@ public class FileViewActivity extends AppCompatActivity {
         setContentView(R.layout.file_content_view);
         accFileText = findViewById(R.id.accFileView);
         gyroFileText = findViewById(R.id.gyroFileView);
-        accFileText.setText(readFromFile(touchPath));
-        gyroFileText.setText(readFromFile(swipePath));
+
+        accFileText.setText(readFromFile(accPath));
+        gyroFileText.setText(readFromFile(gyroPath));
+        /* accFileText.setText(readFromFile(touchPath));
+        gyroFileText.setText(readFromFile(swipePath));*/
     }
 
     private String readFromFile(String filepath) {

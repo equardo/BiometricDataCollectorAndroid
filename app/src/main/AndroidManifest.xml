@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
 
     <application
         android:allowBackup="true"
@@ -13,20 +14,26 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.BiometricDataCollector">
-        <activity
-            android:name=".activity.SurveyActivity"
-            android:exported="false" />
 
         <service
-            android:name=".GyroAccService"
+            android:name=".service.GyroAccService"
             android:enabled="true"
             android:exported="false" />
 
+        <receiver android:name=".alarmreciever.StartDataCollectionReceiver" />
+        <receiver android:name=".alarmreciever.StartSurveyReceiver" />
+        <receiver android:name=".alarmreciever.StopDataCollectionReceiver" />
+
         <activity
-            android:name=".activity.FileViewActivity"
+            android:name=".ui.activity.SurveyActivity"
             android:exported="false" />
+
         <activity
-            android:name=".activity.MainActivity"
+            android:name=".ui.activity.FileViewActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.activity.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -34,6 +41,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
     </application>
 
 </manifest>

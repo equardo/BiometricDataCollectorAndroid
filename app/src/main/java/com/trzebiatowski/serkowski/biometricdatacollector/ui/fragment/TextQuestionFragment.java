@@ -1,4 +1,4 @@
-package com.trzebiatowski.serkowski.biometricdatacollector.fragment;
+package com.trzebiatowski.serkowski.biometricdatacollector.ui.fragment;
 
 import android.os.Bundle;
 

@@ -1,4 +1,4 @@
-package com.trzebiatowski.serkowski.biometricdatacollector.fragment;
+package com.trzebiatowski.serkowski.biometricdatacollector.ui.fragment;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
@@ -13,7 +13,7 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import com.trzebiatowski.serkowski.biometricdatacollector.R;
-import com.trzebiatowski.serkowski.biometricdatacollector.TouchEventListener;
+import com.trzebiatowski.serkowski.biometricdatacollector.listener.TouchEventListener;
 
 import java.util.ArrayList;
 
@@ -71,6 +71,7 @@ public class MultipleChoiceQuestionFragment extends Fragment implements View.OnC
         questionTextView.setText(questionText);
 
         radioGroup = inf.findViewById(R.id.answers_radio_group);
+        radioGroup.setOnTouchListener(new TouchEventListener(questionTextView, inf.getContext()));
 
         for (String answer:possible_answers) {
             RadioButton rdbtn = new RadioButton(inf.getContext());

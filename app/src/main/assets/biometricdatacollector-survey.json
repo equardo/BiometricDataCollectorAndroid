@@ -1,4 +1,6 @@
 {
+  "collectionTimeSeconds": 15,
+  "timeBetweenSurveysMinutes": 1,
   "questions":[
     {
       "text": "What emotion would you say you feel the most?",

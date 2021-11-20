@@ -1,40 +1,42 @@
-package com.trzebiatowski.serkowski.biometricdatacollector.activity;
+package com.trzebiatowski.serkowski.biometricdatacollector.ui.activity;
+
+import static com.trzebiatowski.serkowski.biometricdatacollector.utility.FileOperations.readConfigFile;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
-import android.content.res.AssetManager;
 import android.os.Bundle;
-import android.view.MotionEvent;
+import android.os.SystemClock;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.trzebiatowski.serkowski.biometricdatacollector.R;
-import com.trzebiatowski.serkowski.biometricdatacollector.TouchEventListener;
+import com.trzebiatowski.serkowski.biometricdatacollector.alarmreciever.StopDataCollectionReceiver;
+import com.trzebiatowski.serkowski.biometricdatacollector.dto.ConfigFileDto;
+import com.trzebiatowski.serkowski.biometricdatacollector.listener.TouchEventListener;
 import com.trzebiatowski.serkowski.biometricdatacollector.dto.QuestionDto;
-import com.trzebiatowski.serkowski.biometricdatacollector.dto.QuestionsDto;
-import com.trzebiatowski.serkowski.biometricdatacollector.fragment.MultipleChoiceQuestionFragment;
-import com.trzebiatowski.serkowski.biometricdatacollector.fragment.QuestionFragment;
-import com.trzebiatowski.serkowski.biometricdatacollector.fragment.SurveyDoneFragment;
-import com.trzebiatowski.serkowski.biometricdatacollector.fragment.TextQuestionFragment;
+import com.trzebiatowski.serkowski.biometricdatacollector.ui.fragment.MultipleChoiceQuestionFragment;
+import com.trzebiatowski.serkowski.biometricdatacollector.ui.fragment.QuestionFragment;
+import com.trzebiatowski.serkowski.biometricdatacollector.ui.fragment.SurveyDoneFragment;
+import com.trzebiatowski.serkowski.biometricdatacollector.ui.fragment.TextQuestionFragment;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 public class SurveyActivity extends AppCompatActivity {
 
     private static final String ARG_QUESTION_TEXT = "question_text";
     private static final String ARG_POSSIBLE_ANSWERS = "possible_answers";
-    private QuestionsDto questions;
+    // private ArrayList<QuestionDto> questions;
     private ArrayList<String> answers;
 
     private TouchEventListener touchEventListener;
     private FragmentManager manager;
+    private ConfigFileDto configData;
 
     public SurveyActivity() {
         super(R.layout.activity_survey);
@@ -53,7 +55,8 @@ public class SurveyActivity extends AppCompatActivity {
         findViewById(R.id.next_question_button).setOnTouchListener(touchEventListener);
 
         if (savedInstanceState == null) {
-            questions = readQuestions();
+            configData = readConfigFile(this);
+            // questions = readConfigFile(this).getQuestions();
             answers = new ArrayList<>();
             nextQuestion(null, true);
         }
@@ -79,9 +82,10 @@ public class SurveyActivity extends AppCompatActivity {
         QuestionDto question;
 
         try {
-            question = questions.getQuestions().remove(0);
+            question = configData.getQuestions().remove(0);
         }
         catch (IndexOutOfBoundsException e) {
+            setStopDataCollectionAlarm();
             setSurveyDoneView();
             return;
         }
@@ -89,7 +93,23 @@ public class SurveyActivity extends AppCompatActivity {
         changeQuestionFragment(question);
     }
 
+    private void setStopDataCollectionAlarm() {
+
+        AlarmManager alarmMgr = (AlarmManager)this.getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(this, StopDataCollectionReceiver.class);
+        intent.putExtra("collectionTime", configData.getCollectionTimeSeconds());
+        intent.putExtra("timeBetweenSurveys", configData.getTimeBetweenSurveysMinutes());
+        PendingIntent alarmIntent = PendingIntent.getBroadcast(this, 5,
+                intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        alarmMgr.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                SystemClock.elapsedRealtime() +
+                        (long)configData.getCollectionTimeSeconds() * 1000, alarmIntent);
+
+    }
+
     private void setSurveyDoneView() {
+
         Button nextButton = findViewById(R.id.next_question_button);
 
         nextButton.setText(R.string.finish_survey_button_text);
@@ -129,25 +149,4 @@ public class SurveyActivity extends AppCompatActivity {
         }
     }
 
-    private QuestionsDto readQuestions(){
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-
-            AssetManager am = getApplicationContext().getAssets();
-            InputStream stream = am.open("biometricdatacollector-survey.json");
-
-            BufferedReader r = new BufferedReader(new InputStreamReader(stream));
-            StringBuilder total = new StringBuilder();
-
-            for (String line; (line = r.readLine()) != null; ) {
-                total.append(line).append('\n');
-            }
-
-            return objectMapper.readValue(total.toString(), QuestionsDto.class);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
 }
