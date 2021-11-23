@@ -47,6 +47,9 @@ public class GyroAccService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
+        String accPath = intent.getStringExtra("accPath");
+        String gyroPath = intent.getStringExtra("gyroPath");
+
         context = getBaseContext();
 
         createNotificationChannel();
@@ -67,7 +70,7 @@ public class GyroAccService extends Service {
 
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
-        listener = new GyroAccListener(context);
+        listener = new GyroAccListener(context, accPath, gyroPath);
 
         sensorManager.registerListener(listener,
                 sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),

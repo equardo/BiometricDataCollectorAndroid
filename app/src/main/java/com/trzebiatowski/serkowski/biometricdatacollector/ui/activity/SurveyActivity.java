@@ -1,6 +1,7 @@
 package com.trzebiatowski.serkowski.biometricdatacollector.ui.activity;
 
 import static com.trzebiatowski.serkowski.biometricdatacollector.utility.FileOperations.readConfigFile;
+import static com.trzebiatowski.serkowski.biometricdatacollector.utility.FileOperations.writeToFile;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
@@ -22,6 +23,7 @@ import com.trzebiatowski.serkowski.biometricdatacollector.listener.TouchEventLis
 import com.trzebiatowski.serkowski.biometricdatacollector.dto.QuestionDto;
 import com.trzebiatowski.serkowski.biometricdatacollector.ui.fragment.MultipleChoiceQuestionFragment;
 import com.trzebiatowski.serkowski.biometricdatacollector.ui.fragment.QuestionFragment;
+import com.trzebiatowski.serkowski.biometricdatacollector.ui.fragment.SliderQuestionFragment;
 import com.trzebiatowski.serkowski.biometricdatacollector.ui.fragment.SurveyDoneFragment;
 import com.trzebiatowski.serkowski.biometricdatacollector.ui.fragment.TextQuestionFragment;
 
@@ -31,12 +33,19 @@ public class SurveyActivity extends AppCompatActivity {
 
     private static final String ARG_QUESTION_TEXT = "question_text";
     private static final String ARG_POSSIBLE_ANSWERS = "possible_answers";
-    // private ArrayList<QuestionDto> questions;
+    private static final String ARG_VALUE_FROM = "value_from";
+    private static final String ARG_VALUE_TO = "value_to";
+    private static final String ARG_STEP_SIZE = "step_size";
+
+    public static final String ANSWERS_DATA_FOLDER_NAME = "answers";
+
     private ArrayList<String> answers;
 
     private TouchEventListener touchEventListener;
     private FragmentManager manager;
     private ConfigFileDto configData;
+    private String currentFileSuffix;
+    private Bundle extras;
 
     public SurveyActivity() {
         super(R.layout.activity_survey);
@@ -49,17 +58,22 @@ public class SurveyActivity extends AppCompatActivity {
         manager = getSupportFragmentManager();
 
         TextView tempText = findViewById(R.id.tempTextView);
-        touchEventListener = new TouchEventListener(tempText, getApplicationContext());
-
-        findViewById(R.id.survey_activity_layout).setOnTouchListener(touchEventListener);
-        findViewById(R.id.next_question_button).setOnTouchListener(touchEventListener);
 
         if (savedInstanceState == null) {
             configData = readConfigFile(this);
-            // questions = readConfigFile(this).getQuestions();
+            if(extras == null) {
+                currentFileSuffix = getIntent().getStringExtra("currentFileSuffix");
+            }
+            else {
+                currentFileSuffix = extras.getString("currentFileSuffix");
+            }
             answers = new ArrayList<>();
             nextQuestion(null, true);
         }
+
+        touchEventListener = new TouchEventListener(tempText, getApplicationContext(), currentFileSuffix);
+        findViewById(R.id.survey_activity_layout).setOnTouchListener(touchEventListener);
+        findViewById(R.id.next_question_button).setOnTouchListener(touchEventListener);
     }
 
     public void nextQuestion(View v) {
@@ -72,6 +86,7 @@ public class SurveyActivity extends AppCompatActivity {
             if (v.getTag().equals("noQuestionsLeft")) {
                 Intent intent = new Intent(this, MainActivity.class);
                 startActivity(intent);
+                return;
             }
             else {
                 QuestionFragment fragment = (QuestionFragment) manager.findFragmentById(R.id.survey_fragment_container_view);
@@ -86,11 +101,25 @@ public class SurveyActivity extends AppCompatActivity {
         }
         catch (IndexOutOfBoundsException e) {
             setStopDataCollectionAlarm();
+            saveAnswerData();
             setSurveyDoneView();
             return;
         }
 
         changeQuestionFragment(question);
+    }
+
+    private void saveAnswerData() {
+        writeToFile(this, "[", ANSWERS_DATA_FOLDER_NAME, currentFileSuffix, false);
+        for(int i = 0; i < answers.size(); i++) {
+            String jsonObject = "";
+            if( i!=0 ) {
+                jsonObject += ",";
+            }
+            jsonObject += "\"" + answers.get(i) + "\"";
+            writeToFile(this, jsonObject, ANSWERS_DATA_FOLDER_NAME, currentFileSuffix, false);
+        }
+        writeToFile(this, "]", ANSWERS_DATA_FOLDER_NAME, currentFileSuffix, false);
     }
 
     private void setStopDataCollectionAlarm() {
@@ -125,6 +154,7 @@ public class SurveyActivity extends AppCompatActivity {
 
         Bundle args = new Bundle();
         args.putString(ARG_QUESTION_TEXT, question.getText());
+        args.putString("currentFileSuffix", currentFileSuffix);
 
         switch (question.getType()) {
             case "text": {
@@ -146,6 +176,28 @@ public class SurveyActivity extends AppCompatActivity {
                         .commit();
                 break;
             }
+            case "slider": {
+
+                args.putInt(ARG_VALUE_FROM, question.getValueFrom());
+                args.putInt(ARG_VALUE_TO, question.getValueTo());
+                args.putInt(ARG_STEP_SIZE, question.getStepSize());
+
+                getSupportFragmentManager().beginTransaction()
+                        .setReorderingAllowed(true)
+                        .add(R.id.survey_fragment_container_view, SliderQuestionFragment.class, args)
+                        .commit();
+                break;
+            }
+        }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intents)
+    {
+        super.onNewIntent(intents);
+
+        if (intents != null) {
+            extras = intents.getExtras();
         }
     }
 

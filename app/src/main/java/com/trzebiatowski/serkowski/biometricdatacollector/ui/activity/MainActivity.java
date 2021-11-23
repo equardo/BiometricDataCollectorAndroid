@@ -1,6 +1,7 @@
 package com.trzebiatowski.serkowski.biometricdatacollector.ui.activity;
 
 import static com.trzebiatowski.serkowski.biometricdatacollector.utility.FileOperations.readConfigFile;
+import static com.trzebiatowski.serkowski.biometricdatacollector.utility.FileOperations.removeFolderContents;
 import static com.trzebiatowski.serkowski.biometricdatacollector.utility.FileOperations.writeToFile;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -103,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void deleteFilesContent(View v) {
-        String accPath = "acc_data.txt";
+        /*String accPath = "acc_data.txt";
         String gyroPath = "gyro_data.txt";
         String touchPath = "touch_data.txt";
         String swipePath = "swipe_data.txt";
@@ -111,7 +112,13 @@ public class MainActivity extends AppCompatActivity {
         writeToFile(getApplicationContext(), "", accPath, true);
         writeToFile(getApplicationContext(), "", gyroPath, true);
         writeToFile(getApplicationContext(), "", touchPath, true);
-        writeToFile(getApplicationContext(), "", swipePath, true);
+        writeToFile(getApplicationContext(), "", swipePath, true);*/
+
+        removeFolderContents(getApplicationContext(), "accelerometer");
+        removeFolderContents(getApplicationContext(), "gyroscope");
+        removeFolderContents(getApplicationContext(), "swipe");
+        removeFolderContents(getApplicationContext(), "touch");
+        removeFolderContents(getApplicationContext(), "answers");
     }
 
     public void startService(View v) {

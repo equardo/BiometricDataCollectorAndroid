@@ -10,19 +10,25 @@ import android.widget.TextView;
 
 public class TouchEventListener implements View.OnTouchListener {
 
+    public static final String TOUCH_DATA_FOLDER = "touch";
+    public static final String SWIPE_DATA_FOLDER = "swipe";
     private final TextView text;
     private final Context context;
+    private final String currentFileSuffix;
 
     private int previousEventAction = MotionEvent.INVALID_POINTER_ID;
     private float previousX = -100;
     private float previousY = -100;
 
-    private final String touchPath = "touch_data.txt";
-    private final String swipePath = "swipe_data.txt";
+    private final String touchPath;
+    private final String swipePath;
 
-    public TouchEventListener(TextView text, Context context) {
+    public TouchEventListener(TextView text, Context context, String currentFileSuffix) {
         this.text = text;
         this.context = context;
+        this.currentFileSuffix = currentFileSuffix;
+        this.touchPath = currentFileSuffix + ".txt";
+        this.swipePath = currentFileSuffix + ".txt";
     }
 
     @SuppressLint("DefaultLocale")
@@ -45,10 +51,10 @@ public class TouchEventListener implements View.OnTouchListener {
 
             if(previousEventAction != MotionEvent.INVALID_POINTER_ID) {
                 if (previousEventAction == MotionEvent.ACTION_DOWN) {
-                    writeToFile(context, "{\"points\":[\n", swipePath, false);
+                    writeToFile(context, "{\"points\":[\n", SWIPE_DATA_FOLDER, swipePath, false);
                 }
                 writeToFile(context, String.format("{\"x\": %.2f,\"y\": %.2f}\n", previousX, previousY),
-                        swipePath, false);
+                        SWIPE_DATA_FOLDER, swipePath, false);
             }
 
             setPreviousEventData(event);
@@ -61,12 +67,12 @@ public class TouchEventListener implements View.OnTouchListener {
             if(previousEventAction != MotionEvent.INVALID_POINTER_ID) {
                 if (previousEventAction == MotionEvent.ACTION_DOWN) {
                     writeToFile(context, String.format("{\"x\": %.2f,\"y\": %.2f}\n", previousX, previousY),
-                            touchPath, false);
+                            TOUCH_DATA_FOLDER, touchPath, false);
                 } else if (previousEventAction == MotionEvent.ACTION_MOVE) {
                     writeToFile(context, String.format("{\"x\": %.2f,\"y\": %.2f}\n", previousX, previousY),
-                            swipePath, false);
+                            SWIPE_DATA_FOLDER, swipePath, false);
                     writeToFile(context, String.format("{\"x\": %.2f,\"y\": %.2f}\n", x, y),
-                            swipePath, false);
+                            SWIPE_DATA_FOLDER, swipePath, false);
 
                     writeToFile(context, "\n]}\n", swipePath, false);
                 }

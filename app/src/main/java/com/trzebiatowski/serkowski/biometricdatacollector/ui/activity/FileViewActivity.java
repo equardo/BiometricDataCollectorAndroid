@@ -2,26 +2,19 @@ package com.trzebiatowski.serkowski.biometricdatacollector.ui.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.TextView;
 
 import com.trzebiatowski.serkowski.biometricdatacollector.R;
+import static com.trzebiatowski.serkowski.biometricdatacollector.utility.FileOperations.readFromFile;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.File;
 
 public class FileViewActivity extends AppCompatActivity {
 
     private TextView accFileText;
     private TextView gyroFileText;
-    private final String accPath = "acc_data.txt";
-    private final String gyroPath = "gyro_data.txt";
-    private final String touchPath = "touch_data.txt";
-    private final String swipePath = "swipe_data.txt";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,39 +23,58 @@ public class FileViewActivity extends AppCompatActivity {
         accFileText = findViewById(R.id.accFileView);
         gyroFileText = findViewById(R.id.gyroFileView);
 
-        accFileText.setText(readFromFile(accPath));
-        gyroFileText.setText(readFromFile(gyroPath));
+        accFileText.setText(getAnswerData());
+        gyroFileText.setText(getSwipeData());
         /* accFileText.setText(readFromFile(touchPath));
         gyroFileText.setText(readFromFile(swipePath));*/
     }
 
-    private String readFromFile(String filepath) {
-
-        String ret = "";
-
-        try {
-            InputStream inputStream = getApplicationContext().openFileInput(filepath);
-
-            if ( inputStream != null ) {
-                InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-                String receiveString = "";
-                StringBuilder stringBuilder = new StringBuilder();
-
-                while ( (receiveString = bufferedReader.readLine()) != null ) {
-                    stringBuilder.append("\n").append(receiveString);
+    private String getAccData() {
+        StringBuilder out = new StringBuilder();
+        File dir = getApplicationContext().getDir("accelerometer", Context.MODE_PRIVATE);
+        if (dir.exists()) {
+            File[] files = dir.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    out.append("\n\n Reading file: ").append(file.getName()).append("\n\n");
+                    out.append(readFromFile("accelerometer", file.getName(), getApplicationContext()));
+                    out.append("\n\n END OF FILE \n\n");
                 }
-
-                inputStream.close();
-                ret = stringBuilder.toString();
             }
         }
-        catch (FileNotFoundException e) {
-            Log.e("Exception", "File not found: " + e.toString());
-        } catch (IOException e) {
-            Log.e("Exception", "Can not read file: " + e.toString());
-        }
+        return out.toString();
+    }
 
-        return ret;
+    private String getSwipeData() {
+        StringBuilder out = new StringBuilder();
+        File dir = getApplicationContext().getDir("swipe", Context.MODE_PRIVATE);
+        if (dir.exists()) {
+            File[] files = dir.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    out.append("\n\n Reading file: ").append(file.getName()).append("\n\n");
+                    out.append(readFromFile("swipe", file.getName(), getApplicationContext()));
+                    out.append("\n\n END OF FILE \n\n");
+                }
+            }
+        }
+        return out.toString();
+    }
+
+    private String getAnswerData() {
+        StringBuilder out = new StringBuilder();
+        File dir = getApplicationContext().getDir("answers", Context.MODE_PRIVATE);
+        if (dir.exists()) {
+            File[] files = dir.listFiles();
+            if (files != null) {
+                for (int i = 0; i < files.length; ++i) {
+                    File file = files[i];
+                    out.append("\n\n Reading file: ").append(file.getName()).append("\n\n");
+                    out.append(readFromFile("answers", file.getName(), getApplicationContext()));
+                    out.append("\n\n END OF FILE \n\n");
+                }
+            }
+        }
+        return out.toString();
     }
 }

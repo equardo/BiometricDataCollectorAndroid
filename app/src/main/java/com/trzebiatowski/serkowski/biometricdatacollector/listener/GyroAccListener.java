@@ -8,6 +8,8 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.os.PowerManager;
 import android.os.SystemClock;
+
+import java.io.File;
 import java.sql.Timestamp;
 
 public class GyroAccListener implements SensorEventListener {
@@ -15,16 +17,19 @@ public class GyroAccListener implements SensorEventListener {
     private long lastAccUpdate;
     private long lastGyroUpdate;
     private Context context;
-    private final String accPath = "acc_data.txt";
-    private final String gyroPath = "gyro_data.txt";
+    private String accPath;
+    private String gyroPath;
 
     private PowerManager.WakeLock wakeLock;
 
-    public GyroAccListener(Context context) {
+    public GyroAccListener(Context context, String accPath, String gyroPath) {
         this.context = context;
+        this.accPath = accPath;
+        this.gyroPath = gyroPath;
         lastAccUpdate = SystemClock.elapsedRealtimeNanos();
         lastGyroUpdate = SystemClock.elapsedRealtimeNanos();
     }
+
 
     @Override
     public void onSensorChanged(SensorEvent event) {
@@ -56,8 +61,9 @@ public class GyroAccListener implements SensorEventListener {
 
         long timeTenthsSeconds = actualAccTime / 100000000;
         Timestamp time = new Timestamp(System.currentTimeMillis());
+
         String toFile = time.toString() + ": x: " +  x + ", y: " + y + ", z: " + z + "\n" + timeTenthsSeconds + "\n";
-        writeToFile(context, toFile, accPath, false);
+        writeToFile(context, toFile, "accelerometer", accPath, false);
     }
 
     private void getGyroscope(SensorEvent event) {
@@ -80,8 +86,9 @@ public class GyroAccListener implements SensorEventListener {
 
         long timeTenthsSeconds = actualGyroTime / 100000000;
         Timestamp time = new Timestamp(System.currentTimeMillis());
+
         String toFile = time.toString() + ": x: " +  x + ", y: " + y + ", z: " + z + "\n" + timeTenthsSeconds + "\n";
-        writeToFile(context, toFile, gyroPath, false);
+        writeToFile(context, toFile, "gyroscope", gyroPath, false);
     }
 
     @Override
