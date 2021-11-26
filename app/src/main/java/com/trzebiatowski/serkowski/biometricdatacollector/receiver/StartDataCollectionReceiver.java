@@ -1,4 +1,4 @@
-package com.trzebiatowski.serkowski.biometricdatacollector.alarmreciever;
+package com.trzebiatowski.serkowski.biometricdatacollector.receiver;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -31,18 +31,20 @@ public class StartDataCollectionReceiver extends BroadcastReceiver {
         serviceIntent.putExtra("gyroPath", gyroPath);
         ContextCompat.startForegroundService(context, serviceIntent);
 
-        long secondsUntilSurvey = intent.getIntExtra("timeUntilNextSurvey", -1);
+        int secondsUntilSurvey = intent.getIntExtra("collectionTimeSeconds", -1);
 
         if(secondsUntilSurvey != -1) {
             AlarmManager alarmMgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
             Intent alarmIntent = new Intent(context, StartSurveyReceiver.class);
             alarmIntent.putExtra("currentFileSuffix", dateTime);
+            alarmIntent.putExtra("postponeTimeSeconds", intent.getIntExtra("postponeTimeSeconds", -1));
+            alarmIntent.putExtra("collectionTimeSeconds", secondsUntilSurvey);
             PendingIntent pendingAlarmIntent = PendingIntent.getBroadcast(context, 3,
                     alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-            alarmMgr.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+            alarmMgr.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP,
                     SystemClock.elapsedRealtime() +
-                            secondsUntilSurvey * 1000, pendingAlarmIntent);
+                            (long)secondsUntilSurvey * 1000, pendingAlarmIntent);
         }
     }
 }

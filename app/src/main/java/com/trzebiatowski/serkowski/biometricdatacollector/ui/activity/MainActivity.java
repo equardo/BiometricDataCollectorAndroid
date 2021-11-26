@@ -1,14 +1,15 @@
 package com.trzebiatowski.serkowski.biometricdatacollector.ui.activity;
 
+import static com.trzebiatowski.serkowski.biometricdatacollector.utility.FileOperations.getFolderSize;
 import static com.trzebiatowski.serkowski.biometricdatacollector.utility.FileOperations.readConfigFile;
 import static com.trzebiatowski.serkowski.biometricdatacollector.utility.FileOperations.removeFolderContents;
 import static com.trzebiatowski.serkowski.biometricdatacollector.utility.FileOperations.writeToFile;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.app.AlarmManager;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -22,9 +23,9 @@ import android.widget.TextView;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.listener.single.DialogOnDeniedPermissionListener;
 import com.karumi.dexter.listener.single.PermissionListener;
-import com.trzebiatowski.serkowski.biometricdatacollector.alarmreciever.StartDataCollectionReceiver;
-import com.trzebiatowski.serkowski.biometricdatacollector.alarmreciever.StartSurveyReceiver;
-import com.trzebiatowski.serkowski.biometricdatacollector.alarmreciever.StopDataCollectionReceiver;
+import com.trzebiatowski.serkowski.biometricdatacollector.receiver.StartDataCollectionReceiver;
+import com.trzebiatowski.serkowski.biometricdatacollector.receiver.StartSurveyReceiver;
+import com.trzebiatowski.serkowski.biometricdatacollector.receiver.StopDataCollectionReceiver;
 import com.trzebiatowski.serkowski.biometricdatacollector.service.GyroAccService;
 import com.trzebiatowski.serkowski.biometricdatacollector.R;
 import com.trzebiatowski.serkowski.biometricdatacollector.dto.ConfigFileDto;
@@ -35,9 +36,8 @@ import java.text.MessageFormat;
 
 public class MainActivity extends AppCompatActivity {
 
-    private PowerManager.WakeLock wakeLock;
-
     private ConfigFileDto configData;
+    private static final int SURVEY_NOTIFICATION_ID = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,11 +67,11 @@ public class MainActivity extends AppCompatActivity {
         TextView accFileText = findViewById(R.id.accelerometerTextView);
         TextView gyroFileText = findViewById(R.id.gyroscopeTextView);
 
-        double acclength = new File(getApplicationContext().getFilesDir() + "/" + "acc_data.txt").length();
+        double acclength = getFolderSize(this, "accelerometer");
         acclength = acclength / 1000;
         accFileText.setText(MessageFormat.format("Accelerometer file size: {0,number,#.##}", acclength));
 
-        double gyrolength = new File(getApplicationContext().getFilesDir() + "/" + "gyro_data.txt").length();
+        double gyrolength = getFolderSize(this, "gyroscope");
         gyrolength = gyrolength / 1000;
         gyroFileText.setText(MessageFormat.format("Gyroscope file size: {0,number,#.##}", gyrolength));
 
@@ -90,7 +90,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        wakeLock.release();
     }
 
     public void viewFiles(View v) {
@@ -125,7 +124,8 @@ public class MainActivity extends AppCompatActivity {
 
         AlarmManager alarmMgr = (AlarmManager)this.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(this, StartDataCollectionReceiver.class);
-        intent.putExtra("timeUntilNextSurvey", configData.getCollectionTimeSeconds());
+        intent.putExtra("collectionTimeSeconds", configData.getCollectionTimeSeconds());
+        intent.putExtra("postponeTimeSeconds", configData.getPostponeTimeSeconds());
         PendingIntent alarmIntent = PendingIntent.getBroadcast(this, 2, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -155,12 +155,8 @@ public class MainActivity extends AppCompatActivity {
         PendingIntent pendingStopCollectionIntent = PendingIntent.getBroadcast(this, 5,
                 stopCollectionIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         alarmMgr.cancel(pendingStopCollectionIntent);
-    }
 
-    private boolean checkWriteExternalPermission()
-    {
-        String permission = Manifest.permission.READ_EXTERNAL_STORAGE;
-        int res = getApplicationContext().checkCallingOrSelfPermission(permission);
-        return (res == PackageManager.PERMISSION_GRANTED);
+        NotificationManager nMgr = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
+        nMgr.cancel(SURVEY_NOTIFICATION_ID);
     }
 }

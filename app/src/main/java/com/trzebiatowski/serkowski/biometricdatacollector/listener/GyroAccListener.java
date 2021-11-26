@@ -2,6 +2,7 @@ package com.trzebiatowski.serkowski.biometricdatacollector.listener;
 
 import static com.trzebiatowski.serkowski.biometricdatacollector.utility.FileOperations.writeToFile;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -19,6 +20,8 @@ public class GyroAccListener implements SensorEventListener {
     private Context context;
     private String accPath;
     private String gyroPath;
+    private boolean firstAccCall;
+    private boolean firstGyroCall;
 
     private PowerManager.WakeLock wakeLock;
 
@@ -28,6 +31,8 @@ public class GyroAccListener implements SensorEventListener {
         this.gyroPath = gyroPath;
         lastAccUpdate = SystemClock.elapsedRealtimeNanos();
         lastGyroUpdate = SystemClock.elapsedRealtimeNanos();
+        firstAccCall = true;
+        firstGyroCall = true;
     }
 
 
@@ -41,6 +46,7 @@ public class GyroAccListener implements SensorEventListener {
         }
     }
 
+    @SuppressLint("DefaultLocale")
     private void getAccelerometer(SensorEvent event) {
         float[] values = event.values;
         // Movement
@@ -60,12 +66,20 @@ public class GyroAccListener implements SensorEventListener {
         lastAccUpdate = actualAccTime;
 
         long timeTenthsSeconds = actualAccTime / 100000000;
-        Timestamp time = new Timestamp(System.currentTimeMillis());
 
-        String toFile = time.toString() + ": x: " +  x + ", y: " + y + ", z: " + z + "\n" + timeTenthsSeconds + "\n";
+        if(firstAccCall) {
+            firstAccCall = false;
+        }
+        else {
+            writeToFile(context, ",", "accelerometer", accPath, false);
+        }
+
+         String toFile = String.format("{t:%d, x: %.4f, y: %.4f, z: %.4f}", timeTenthsSeconds, x, y, z);
+        // "{t:" + timeTenthsSeconds + ", x: " +  x + ", y: " + y + ", z: " + z + "}";
         writeToFile(context, toFile, "accelerometer", accPath, false);
     }
 
+    @SuppressLint("DefaultLocale")
     private void getGyroscope(SensorEvent event) {
         float[] values = event.values;
         // Movement
@@ -85,9 +99,15 @@ public class GyroAccListener implements SensorEventListener {
         lastGyroUpdate = actualGyroTime;
 
         long timeTenthsSeconds = actualGyroTime / 100000000;
-        Timestamp time = new Timestamp(System.currentTimeMillis());
 
-        String toFile = time.toString() + ": x: " +  x + ", y: " + y + ", z: " + z + "\n" + timeTenthsSeconds + "\n";
+        if(firstGyroCall) {
+            firstGyroCall = false;
+        }
+        else {
+            writeToFile(context, ",", "accelerometer", accPath, false);
+        }
+
+        String toFile = String.format("{t:%d, x: %.4f, y: %.4f, z: %.4f}", timeTenthsSeconds, x, y, z);
         writeToFile(context, toFile, "gyroscope", gyroPath, false);
     }
 

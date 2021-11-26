@@ -1,4 +1,4 @@
-package com.trzebiatowski.serkowski.biometricdatacollector.alarmreciever;
+package com.trzebiatowski.serkowski.biometricdatacollector.receiver;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -6,8 +6,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.SystemClock;
-
-import androidx.core.content.ContextCompat;
 
 import com.trzebiatowski.serkowski.biometricdatacollector.service.GyroAccService;
 
@@ -24,7 +22,8 @@ public class StopDataCollectionReceiver extends BroadcastReceiver {
         if(collectionTimeSeconds != -1 && minutesBetweenSurveys != -1) {
             AlarmManager alarmMgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
             Intent alarmIntent = new Intent(context, StartDataCollectionReceiver.class);
-            alarmIntent.putExtra("timeUntilNextSurvey", collectionTimeSeconds);
+            alarmIntent.putExtra("collectionTimeSeconds", collectionTimeSeconds);
+            alarmIntent.putExtra("postponeTimeSeconds", intent.getIntExtra("postponeTimeSeconds", -1));
             PendingIntent pendingAlarmIntent = PendingIntent.getBroadcast(context, 4,
                     alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -32,7 +31,7 @@ public class StopDataCollectionReceiver extends BroadcastReceiver {
             // Time until next collection period is the time between surveys minus the time, that has passed
             // since last survey and time needed to collect data before next survey.
 
-            alarmMgr.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+            alarmMgr.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP,
                     SystemClock.elapsedRealtime() +
                             timeUntilCollectionStart, pendingAlarmIntent);
         }

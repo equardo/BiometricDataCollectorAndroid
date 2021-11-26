@@ -1,6 +1,7 @@
 {
-  "collectionTimeSeconds": 15,
+  "collectionTimeSeconds": 360,
   "timeBetweenSurveysMinutes": 1,
+  "postponeTimeSeconds": 5,
   "questions":[
     {
       "text": "What emotion would you say you feel the most?",
@@ -17,11 +18,11 @@
       ]
     },
     {
-      "text": "On a scale of 0 to 20, how tired are you right now?",
+      "text": "On a scale of 1 to 19, how tired are you right now?",
       "type": "slider",
-      "valueFrom": 1,
-      "valueTo": 10,
-      "stepSize": 1
+      "valueFrom": 0,
+      "valueTo": 20,
+      "stepSize": 2
     }
   ]
 }

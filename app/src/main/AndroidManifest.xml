@@ -20,9 +20,10 @@
             android:enabled="true"
             android:exported="false" />
 
-        <receiver android:name=".alarmreciever.StartDataCollectionReceiver" />
-        <receiver android:name=".alarmreciever.StartSurveyReceiver" />
-        <receiver android:name=".alarmreciever.StopDataCollectionReceiver" />
+        <receiver android:name=".receiver.StartDataCollectionReceiver" />
+        <receiver android:name=".receiver.StartSurveyReceiver" />
+        <receiver android:name=".receiver.StopDataCollectionReceiver" />
+        <receiver android:name=".receiver.PostponeSurveyReceiver" />
 
         <activity
             android:name=".ui.activity.SurveyActivity"

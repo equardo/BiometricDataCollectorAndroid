@@ -84,6 +84,7 @@ public class SliderQuestionFragment extends Fragment implements QuestionFragment
 
         answerSlider.setValueFrom(valueFrom);
         answerSlider.setValueTo(valueTo);
+        answerSlider.setValue(valueFrom);
         answerSlider.setStepSize(stepSize);
 
         currentValue = valueFrom;

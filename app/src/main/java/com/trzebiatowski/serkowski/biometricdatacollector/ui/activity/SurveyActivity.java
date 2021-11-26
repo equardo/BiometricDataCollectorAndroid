@@ -17,7 +17,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.trzebiatowski.serkowski.biometricdatacollector.R;
-import com.trzebiatowski.serkowski.biometricdatacollector.alarmreciever.StopDataCollectionReceiver;
+import com.trzebiatowski.serkowski.biometricdatacollector.receiver.StopDataCollectionReceiver;
 import com.trzebiatowski.serkowski.biometricdatacollector.dto.ConfigFileDto;
 import com.trzebiatowski.serkowski.biometricdatacollector.listener.TouchEventListener;
 import com.trzebiatowski.serkowski.biometricdatacollector.dto.QuestionDto;
@@ -128,10 +128,11 @@ public class SurveyActivity extends AppCompatActivity {
         Intent intent = new Intent(this, StopDataCollectionReceiver.class);
         intent.putExtra("collectionTime", configData.getCollectionTimeSeconds());
         intent.putExtra("timeBetweenSurveys", configData.getTimeBetweenSurveysMinutes());
+        intent.putExtra("postponeTimeSeconds", configData.getPostponeTimeSeconds());
         PendingIntent alarmIntent = PendingIntent.getBroadcast(this, 5,
                 intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        alarmMgr.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+        alarmMgr.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP,
                 SystemClock.elapsedRealtime() +
                         (long)configData.getCollectionTimeSeconds() * 1000, alarmIntent);
 

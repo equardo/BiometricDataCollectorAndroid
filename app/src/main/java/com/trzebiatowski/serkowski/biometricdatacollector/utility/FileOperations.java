@@ -144,6 +144,38 @@ public class FileOperations {
         }
     }
 
+    public static void removeFile(Context context, String dirname, String filename) {
+        File directory = context.getDir(dirname, Context.MODE_PRIVATE);
+
+        if(!directory.exists())
+            throw new RuntimeException("Folder doesn't exist");
+
+        File[] files = directory.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if(file.getName().equals(filename)) {
+                    file.delete();
+                }
+            }
+        }
+    }
+
+    public static int getFolderSize(Context context, String dirname) {
+        File directory = context.getDir(dirname, Context.MODE_PRIVATE);
+
+        if(!directory.exists())
+            throw new RuntimeException("Folder doesn't exist");
+
+        int result = 0;
+
+        File[] files = directory.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                result += file.length();
+            }
+        }
+        return result;
+    }
 
     public static ConfigFileDto readConfigFile(Context ctx){
         try {
