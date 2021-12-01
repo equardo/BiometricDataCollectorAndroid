@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.util.UUID;
 
 public class FileOperations {
 
@@ -75,7 +76,7 @@ public class FileOperations {
         catch (FileNotFoundException e) {
             Log.e("Exception", "File not found: " + e.toString());
         } catch (IOException e) {
-            Log.e("Exception", "Can not read file: " + e.toString());
+            Log.e("Exception", "Cannot read file: " + e.toString());
         }
 
         return ret;
@@ -197,5 +198,18 @@ public class FileOperations {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static String getUserId(Context context) {
+
+        String ret = readFromFile("id.txt", context);
+
+        if("".equals(ret)) {
+            UUID uuid = UUID.randomUUID();
+            ret = uuid.toString();
+            writeToFile(context, ret, "id.txt", false);
+        }
+
+        return ret;
     }
 }

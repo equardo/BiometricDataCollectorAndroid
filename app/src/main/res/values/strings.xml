@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">BiometricDataCollector</string>
+    <string name="app_name">Biometric Data Collector</string>
     <string name="accelerometer_view_string">Accelerometer data: x %1$.1f, y %2$.1f, z %3$.1f.</string>
     <string name="gyroscope_view_string">Gyroscope data: x %1$.1f, y %2$.1f, z %3$.1f.</string>
     <string name="file_button_text">View files</string>
@@ -12,4 +12,10 @@
     <string name="question_loading_fail_text">Question failed to load.</string>
     <string name="finish_survey_button_text">Finish survey</string>
     <string name="question_loading_error_text">Error while loading question.</string>
+    <string name="title_activity_main">MainActivity</string>
+
+    <string name="app_usage_text">To use the app, press "Start collection" when available to fill out surveys. A notification will be shown when a survey is ready.<br/> When you\'re going to be unavailable (for example at night), press "Stop collection".<br/> Send data often, Wi-Fi recommended.</string>
+    <string name="start_collection_button_text">Start collection</string>
+    <string name="stop_collection_buton_text">Stop collection</string>
+    <string name="send_data_button_text">Send data</string>
 </resources>

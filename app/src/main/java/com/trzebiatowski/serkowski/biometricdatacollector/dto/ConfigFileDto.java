@@ -42,7 +42,8 @@ public class ConfigFileDto {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ConfigFileDto that = (ConfigFileDto) o;
-        return collectionTimeSeconds == that.collectionTimeSeconds && timeBetweenSurveysMinutes == that.timeBetweenSurveysMinutes && postponeTimeSeconds == that.postponeTimeSeconds && Objects.equals(questions, that.questions);
+        return collectionTimeSeconds == that.collectionTimeSeconds && timeBetweenSurveysMinutes == that.timeBetweenSurveysMinutes &&
+                postponeTimeSeconds == that.postponeTimeSeconds && Objects.equals(questions, that.questions);
     }
 
     @Override

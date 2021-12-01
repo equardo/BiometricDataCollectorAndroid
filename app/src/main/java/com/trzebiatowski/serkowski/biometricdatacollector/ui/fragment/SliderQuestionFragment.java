@@ -24,11 +24,13 @@ import com.trzebiatowski.serkowski.biometricdatacollector.listener.TouchEventLis
 public class SliderQuestionFragment extends Fragment implements QuestionFragment, Slider.OnChangeListener {
 
     private static final String ARG_QUESTION_TEXT = "question_text";
+    private static final String ARG_LISTENER = "listener";
     private static final String ARG_VALUE_FROM = "value_from";
     private static final String ARG_VALUE_TO = "value_to";
     private static final String ARG_STEP_SIZE = "step_size";
 
     private String questionText;
+    private TouchEventListener listener;
     private int valueFrom;
     private int valueTo;
     private int stepSize;
@@ -43,13 +45,14 @@ public class SliderQuestionFragment extends Fragment implements QuestionFragment
     }
 
     public static SliderQuestionFragment newInstance(String questionText, int valueFrom,
-                                                     int valueTo, int stepSize) {
+                                                     int valueTo, int stepSize, TouchEventListener listener) {
         SliderQuestionFragment fragment = new SliderQuestionFragment();
         Bundle args = new Bundle();
         args.putString(ARG_QUESTION_TEXT, questionText);
         args.putInt(ARG_VALUE_FROM, valueFrom);
         args.putInt(ARG_VALUE_TO, valueTo);
         args.putInt(ARG_STEP_SIZE, stepSize);
+        args.putSerializable(ARG_LISTENER, listener);
         fragment.setArguments(args);
         return fragment;
     }
@@ -59,6 +62,7 @@ public class SliderQuestionFragment extends Fragment implements QuestionFragment
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             questionText = getArguments().getString(ARG_QUESTION_TEXT);
+            listener = (TouchEventListener) getArguments().getSerializable(ARG_LISTENER);
             valueFrom = getArguments().getInt(ARG_VALUE_FROM);
             valueTo = getArguments().getInt(ARG_VALUE_TO);
             stepSize = getArguments().getInt(ARG_STEP_SIZE);
@@ -89,8 +93,10 @@ public class SliderQuestionFragment extends Fragment implements QuestionFragment
 
         currentValue = valueFrom;
 
+        listener.setContext(inf.getContext());
+
         answerSlider.addOnChangeListener(this);
-        answerSlider.setOnTouchListener(new TouchEventListener(questionTextView, inf.getContext(), currentFileSuffix));
+        answerSlider.setOnTouchListener(listener);
 
         return inf;
     }

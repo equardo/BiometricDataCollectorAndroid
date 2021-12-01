@@ -26,9 +26,12 @@ public class MultipleChoiceQuestionFragment extends Fragment implements View.OnC
 
     private static final String ARG_QUESTION_TEXT = "question_text";
     private static final String ARG_POSSIBLE_ANSWERS = "possible_answers";
+    private static final String ARG_LISTENER = "listener";
+    public static final String ARG_CURRENT_FILE_SUFFIX = "currentFileSuffix";
 
     private String questionText;
     private ArrayList<String> possible_answers = new ArrayList<>();
+    private TouchEventListener listener;
     private RadioGroup radioGroup;
     private String finalAnswer = "";
     private String currentFileSuffix;
@@ -38,11 +41,13 @@ public class MultipleChoiceQuestionFragment extends Fragment implements View.OnC
         // Required empty public constructor
     }
 
-    public static TextQuestionFragment newInstance(String questionText, ArrayList<String> possible_answers) {
+    public static TextQuestionFragment newInstance(String questionText, ArrayList<String> possible_answers,
+                                                   TouchEventListener listener) {
         TextQuestionFragment fragment = new TextQuestionFragment();
         Bundle args = new Bundle();
         args.putString(ARG_QUESTION_TEXT, questionText);
         args.putStringArrayList(ARG_POSSIBLE_ANSWERS, possible_answers);
+        args.putSerializable(ARG_LISTENER, listener);
         fragment.setArguments(args);
         return fragment;
     }
@@ -64,7 +69,8 @@ public class MultipleChoiceQuestionFragment extends Fragment implements View.OnC
         if (getArguments() != null) {
             questionText = getArguments().getString(ARG_QUESTION_TEXT);
             possible_answers = getArguments().getStringArrayList(ARG_POSSIBLE_ANSWERS);
-            currentFileSuffix = getArguments().getString("currentFileSuffix");
+            currentFileSuffix = getArguments().getString(ARG_CURRENT_FILE_SUFFIX);
+            listener = (TouchEventListener) getArguments().getSerializable(ARG_LISTENER);
         }
 
         inf = inflater.inflate(R.layout.fragment_multiple_choice_question, container, false);
@@ -72,14 +78,16 @@ public class MultipleChoiceQuestionFragment extends Fragment implements View.OnC
         TextView questionTextView = inf.findViewById(R.id.question_text);
         questionTextView.setText(questionText);
 
+        listener.setContext(inf.getContext());
+
         radioGroup = inf.findViewById(R.id.answers_radio_group);
-        radioGroup.setOnTouchListener(new TouchEventListener(questionTextView, inf.getContext(), currentFileSuffix));
+        radioGroup.setOnTouchListener(listener);
 
         for (String answer:possible_answers) {
             RadioButton rdbtn = new RadioButton(inf.getContext());
             rdbtn.setId(View.generateViewId());
             rdbtn.setText(answer);
-            rdbtn.setOnTouchListener(new TouchEventListener(questionTextView, inf.getContext(), currentFileSuffix));
+            rdbtn.setOnTouchListener(listener);
             rdbtn.setOnClickListener(this);
             radioGroup.addView(rdbtn);
         }

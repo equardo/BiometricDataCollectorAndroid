@@ -23,8 +23,6 @@ public class GyroAccListener implements SensorEventListener {
     private boolean firstAccCall;
     private boolean firstGyroCall;
 
-    private PowerManager.WakeLock wakeLock;
-
     public GyroAccListener(Context context, String accPath, String gyroPath) {
         this.context = context;
         this.accPath = accPath;
@@ -65,8 +63,6 @@ public class GyroAccListener implements SensorEventListener {
 
         lastAccUpdate = actualAccTime;
 
-        long timeTenthsSeconds = actualAccTime / 100000000;
-
         if(firstAccCall) {
             firstAccCall = false;
         }
@@ -74,7 +70,7 @@ public class GyroAccListener implements SensorEventListener {
             writeToFile(context, ",", "accelerometer", accPath, false);
         }
 
-         String toFile = String.format("{t:%d, x: %.4f, y: %.4f, z: %.4f}", timeTenthsSeconds, x, y, z);
+         String toFile = String.format("{t:%d, x: %.4f, y: %.4f, z: %.4f}", actualAccTime, x, y, z);
         // "{t:" + timeTenthsSeconds + ", x: " +  x + ", y: " + y + ", z: " + z + "}";
         writeToFile(context, toFile, "accelerometer", accPath, false);
     }
@@ -98,8 +94,6 @@ public class GyroAccListener implements SensorEventListener {
 
         lastGyroUpdate = actualGyroTime;
 
-        long timeTenthsSeconds = actualGyroTime / 100000000;
-
         if(firstGyroCall) {
             firstGyroCall = false;
         }
@@ -107,7 +101,7 @@ public class GyroAccListener implements SensorEventListener {
             writeToFile(context, ",", "accelerometer", accPath, false);
         }
 
-        String toFile = String.format("{t:%d, x: %.4f, y: %.4f, z: %.4f}", timeTenthsSeconds, x, y, z);
+        String toFile = String.format("{t:%d, x: %.4f, y: %.4f, z: %.4f}", actualGyroTime, x, y, z);
         writeToFile(context, toFile, "gyroscope", gyroPath, false);
     }
 

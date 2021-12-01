@@ -1,5 +1,5 @@
 {
-  "collectionTimeSeconds": 360,
+  "collectionTimeSeconds": 5,
   "timeBetweenSurveysMinutes": 1,
   "postponeTimeSeconds": 5,
   "questions":[
@@ -18,7 +18,7 @@
       ]
     },
     {
-      "text": "On a scale of 1 to 19, how tired are you right now?",
+      "text": "On a scale of 1 to 20, how tired are you right now?",
       "type": "slider",
       "valueFrom": 0,
       "valueTo": 20,

@@ -5,8 +5,9 @@
       <map>
         <entry key="..\:/Users/Shym/AndroidStudioProjects/BiometricDataCollector/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.2234375" />
         <entry key="..\:/Users/Shym/AndroidStudioProjects/BiometricDataCollector/app/src/main/res/drawable/ic_launcher_background.xml" value="0.2234375" />
-        <entry key="..\:/Users/Shym/AndroidStudioProjects/BiometricDataCollector/app/src/main/res/layout/activity_main.xml" value="0.33" />
+        <entry key="..\:/Users/Shym/AndroidStudioProjects/BiometricDataCollector/app/src/main/res/layout/activity_main.xml" value="0.22" />
         <entry key="..\:/Users/Shym/AndroidStudioProjects/BiometricDataCollector/app/src/main/res/layout/activity_survey.xml" value="0.36666666666666664" />
+        <entry key="..\:/Users/Shym/AndroidStudioProjects/BiometricDataCollector/app/src/main/res/layout/activity_test.xml" value="0.18425925925925926" />
         <entry key="..\:/Users/Shym/AndroidStudioProjects/BiometricDataCollector/app/src/main/res/layout/activity_textquestion.xml" value="0.25" />
         <entry key="..\:/Users/Shym/AndroidStudioProjects/BiometricDataCollector/app/src/main/res/layout/file_content_view.xml" value="0.20572916666666666" />
         <entry key="..\:/Users/Shym/AndroidStudioProjects/BiometricDataCollector/app/src/main/res/layout/fragment_multiple_choice_question.xml" value="0.33" />

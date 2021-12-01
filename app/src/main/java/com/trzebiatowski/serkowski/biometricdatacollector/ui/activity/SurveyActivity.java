@@ -33,6 +33,7 @@ public class SurveyActivity extends AppCompatActivity {
 
     private static final String ARG_QUESTION_TEXT = "question_text";
     private static final String ARG_POSSIBLE_ANSWERS = "possible_answers";
+    private static final String ARG_LISTENER = "listener";
     private static final String ARG_VALUE_FROM = "value_from";
     private static final String ARG_VALUE_TO = "value_to";
     private static final String ARG_STEP_SIZE = "step_size";
@@ -57,8 +58,6 @@ public class SurveyActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         manager = getSupportFragmentManager();
 
-        TextView tempText = findViewById(R.id.tempTextView);
-
         if (savedInstanceState == null) {
             configData = readConfigFile(this);
             if(extras == null) {
@@ -67,13 +66,14 @@ public class SurveyActivity extends AppCompatActivity {
             else {
                 currentFileSuffix = extras.getString("currentFileSuffix");
             }
+
+            touchEventListener = new TouchEventListener(getApplicationContext(), currentFileSuffix);
             answers = new ArrayList<>();
             nextQuestion(null, true);
-        }
 
-        touchEventListener = new TouchEventListener(tempText, getApplicationContext(), currentFileSuffix);
-        findViewById(R.id.survey_activity_layout).setOnTouchListener(touchEventListener);
-        findViewById(R.id.next_question_button).setOnTouchListener(touchEventListener);
+            findViewById(R.id.survey_activity_layout).setOnTouchListener(touchEventListener);
+            findViewById(R.id.next_question_button).setOnTouchListener(touchEventListener);
+        }
     }
 
     public void nextQuestion(View v) {
@@ -84,7 +84,7 @@ public class SurveyActivity extends AppCompatActivity {
 
         if(!firstCall) {
             if (v.getTag().equals("noQuestionsLeft")) {
-                Intent intent = new Intent(this, MainActivity.class);
+                Intent intent = new Intent(this, TestActivity.class);
                 startActivity(intent);
                 return;
             }
@@ -110,16 +110,17 @@ public class SurveyActivity extends AppCompatActivity {
     }
 
     private void saveAnswerData() {
-        writeToFile(this, "[", ANSWERS_DATA_FOLDER_NAME, currentFileSuffix, false);
+        String nameWithExtension = currentFileSuffix + ".txt";
+        writeToFile(this, "[", ANSWERS_DATA_FOLDER_NAME, nameWithExtension, false);
         for(int i = 0; i < answers.size(); i++) {
             String jsonObject = "";
             if( i!=0 ) {
                 jsonObject += ",";
             }
             jsonObject += "\"" + answers.get(i) + "\"";
-            writeToFile(this, jsonObject, ANSWERS_DATA_FOLDER_NAME, currentFileSuffix, false);
+            writeToFile(this, jsonObject, ANSWERS_DATA_FOLDER_NAME, nameWithExtension, false);
         }
-        writeToFile(this, "]", ANSWERS_DATA_FOLDER_NAME, currentFileSuffix, false);
+        writeToFile(this, "]", ANSWERS_DATA_FOLDER_NAME, nameWithExtension, false);
     }
 
     private void setStopDataCollectionAlarm() {
@@ -156,6 +157,7 @@ public class SurveyActivity extends AppCompatActivity {
         Bundle args = new Bundle();
         args.putString(ARG_QUESTION_TEXT, question.getText());
         args.putString("currentFileSuffix", currentFileSuffix);
+        args.putSerializable(ARG_LISTENER, touchEventListener);
 
         switch (question.getType()) {
             case "text": {
@@ -166,7 +168,6 @@ public class SurveyActivity extends AppCompatActivity {
                 break;
             }
             case "multiple_choice": {
-
                 if(!question.getAnswers().isEmpty()) {
                     args.putStringArrayList(ARG_POSSIBLE_ANSWERS, question.getAnswers());
                 }

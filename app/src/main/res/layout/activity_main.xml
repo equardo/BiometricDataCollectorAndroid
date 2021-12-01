@@ -7,127 +7,74 @@
     tools:context=".ui.activity.MainActivity">
 
     <TextView
-        android:id="@+id/accelerometerTextView"
+        android:id="@+id/howToUseText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="Hello World!"
+        android:text="@string/app_usage_text"
+        android:textAlignment="center"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.22000003" />
 
-
-    <TextView
-        android:id="@+id/gyroscopeTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="44dp"
-        android:text="Hello World!"
-        app:layout_constraintHorizontal_bias="0.502"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/accelerometerTextView" />
 
     <LinearLayout
         android:id="@+id/buttonsLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="56dp"
+        app:layout_constraintBottom_toTopOf="@id/sendDataButton"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/gyroscopeTextView">
+        app:layout_constraintTop_toBottomOf="@id/howToUseText"
+        app:layout_constraintVertical_bias="0.65">
 
-        <View
+        <LinearLayout
             android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1" />
-
-        <Button
-            android:id="@+id/fileButton"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="viewFiles"
-            android:text="@string/file_button_text" />
+            android:layout_weight="1"
+            android:gravity="center">
 
-        <View
+            <Button
+                android:id="@+id/startCollectionButton"
+                android:onClick="startService"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/start_collection_button_text" />
+
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1" />
-
-        <Button
-            android:id="@+id/button2"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="deleteFilesContent"
-            android:text="@string/delete_button_text"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/gyroscopeTextView" />
+            android:layout_weight="1"
+            android:gravity="center">
 
-        <View
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/buttonsLayout2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="56dp"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/buttonsLayout">
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1" />
-
-        <Button
-            android:id="@+id/startServiceButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="startService"
-            android:text="Start service" />
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1" />
-
-        <Button
-            android:id="@+id/stopServiceButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="stopService"
-            android:text="Stop service"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/gyroscopeTextView" />
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1" />
+            <Button
+                android:id="@+id/stopCollectionButton"
+                android:onClick="stopService"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/stop_collection_buton_text"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/gyroscopeTextView" />
+        </LinearLayout>
 
     </LinearLayout>
 
     <Button
-        android:id="@+id/button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="startSurvey"
-        android:text="@string/survey_button"
+        android:id="@+id/sendDataButton"
+        android:onClick="sendData"
+        android:text="@string/send_data_button_text"
+        app:layout_constraintTop_toBottomOf="@id/buttonsLayout"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonsLayout"
-        app:layout_constraintVertical_bias="0.88" />
-
-
-
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

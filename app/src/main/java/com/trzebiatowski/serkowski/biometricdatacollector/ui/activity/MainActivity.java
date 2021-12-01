@@ -1,38 +1,27 @@
 package com.trzebiatowski.serkowski.biometricdatacollector.ui.activity;
 
-import static com.trzebiatowski.serkowski.biometricdatacollector.utility.FileOperations.getFolderSize;
 import static com.trzebiatowski.serkowski.biometricdatacollector.utility.FileOperations.readConfigFile;
-import static com.trzebiatowski.serkowski.biometricdatacollector.utility.FileOperations.removeFolderContents;
-import static com.trzebiatowski.serkowski.biometricdatacollector.utility.FileOperations.writeToFile;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.Manifest;
 import android.app.AlarmManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.PowerManager;
 import android.os.SystemClock;
 import android.view.View;
-import android.widget.TextView;
 
-import com.karumi.dexter.Dexter;
-import com.karumi.dexter.listener.single.DialogOnDeniedPermissionListener;
-import com.karumi.dexter.listener.single.PermissionListener;
+import com.trzebiatowski.serkowski.biometricdatacollector.R;
+import com.trzebiatowski.serkowski.biometricdatacollector.client.ServerApplicationClient;
+import com.trzebiatowski.serkowski.biometricdatacollector.dto.ConfigFileDto;
 import com.trzebiatowski.serkowski.biometricdatacollector.receiver.StartDataCollectionReceiver;
 import com.trzebiatowski.serkowski.biometricdatacollector.receiver.StartSurveyReceiver;
 import com.trzebiatowski.serkowski.biometricdatacollector.receiver.StopDataCollectionReceiver;
 import com.trzebiatowski.serkowski.biometricdatacollector.service.GyroAccService;
-import com.trzebiatowski.serkowski.biometricdatacollector.R;
-import com.trzebiatowski.serkowski.biometricdatacollector.dto.ConfigFileDto;
 
-
-import java.io.File;
-import java.text.MessageFormat;
+import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -43,81 +32,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        PermissionListener dialogPermissionListener =
-                DialogOnDeniedPermissionListener.Builder
-                        .withContext(getApplicationContext())
-                        .withTitle("File write permission")
-                        .withMessage("File write is needed to save data")
-                        .withButtonText(android.R.string.ok)
-                        .build();
-
-        Dexter.withContext(getApplicationContext())
-                .withPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
-                .withListener(dialogPermissionListener)
-                .check();
-
-        /*PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
-        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
-                "MyApp::MyWakelockTag");
-        wakeLock.acquire(10*60*1000L);*/
-
         configData = readConfigFile(this);
-
-        TextView accFileText = findViewById(R.id.accelerometerTextView);
-        TextView gyroFileText = findViewById(R.id.gyroscopeTextView);
-
-        double acclength = getFolderSize(this, "accelerometer");
-        acclength = acclength / 1000;
-        accFileText.setText(MessageFormat.format("Accelerometer file size: {0,number,#.##}", acclength));
-
-        double gyrolength = getFolderSize(this, "gyroscope");
-        gyrolength = gyrolength / 1000;
-        gyroFileText.setText(MessageFormat.format("Gyroscope file size: {0,number,#.##}", gyrolength));
-
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
-
-    public void viewFiles(View v) {
-        Intent intent = new Intent(this, FileViewActivity.class);
-        startActivity(intent);
-    }
-
-    public void startSurvey(View v) {
-        Intent intent = new Intent(this, SurveyActivity.class);
-        startActivity(intent);
-    }
-
-    public void deleteFilesContent(View v) {
-        /*String accPath = "acc_data.txt";
-        String gyroPath = "gyro_data.txt";
-        String touchPath = "touch_data.txt";
-        String swipePath = "swipe_data.txt";
-
-        writeToFile(getApplicationContext(), "", accPath, true);
-        writeToFile(getApplicationContext(), "", gyroPath, true);
-        writeToFile(getApplicationContext(), "", touchPath, true);
-        writeToFile(getApplicationContext(), "", swipePath, true);*/
-
-        removeFolderContents(getApplicationContext(), "accelerometer");
-        removeFolderContents(getApplicationContext(), "gyroscope");
-        removeFolderContents(getApplicationContext(), "swipe");
-        removeFolderContents(getApplicationContext(), "touch");
-        removeFolderContents(getApplicationContext(), "answers");
     }
 
     public void startService(View v) {
@@ -158,5 +73,15 @@ public class MainActivity extends AppCompatActivity {
 
         NotificationManager nMgr = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
         nMgr.cancel(SURVEY_NOTIFICATION_ID);
+    }
+
+    public void sendData(View v) {
+        ServerApplicationClient client = new ServerApplicationClient("https://mock.codes/202");
+
+        try {
+            client.sendData(this);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

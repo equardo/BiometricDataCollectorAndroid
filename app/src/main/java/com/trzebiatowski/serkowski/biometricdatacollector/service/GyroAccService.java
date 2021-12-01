@@ -17,7 +17,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
 import com.trzebiatowski.serkowski.biometricdatacollector.R;
-import com.trzebiatowski.serkowski.biometricdatacollector.ui.activity.MainActivity;
+import com.trzebiatowski.serkowski.biometricdatacollector.ui.activity.TestActivity;
 import com.trzebiatowski.serkowski.biometricdatacollector.listener.GyroAccListener;
 
 
@@ -53,7 +53,7 @@ public class GyroAccService extends Service {
         context = getBaseContext();
 
         createNotificationChannel();
-        Intent notificationIntent = new Intent(this, MainActivity.class);
+        Intent notificationIntent = new Intent(this, TestActivity.class);
 
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
                 7, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
