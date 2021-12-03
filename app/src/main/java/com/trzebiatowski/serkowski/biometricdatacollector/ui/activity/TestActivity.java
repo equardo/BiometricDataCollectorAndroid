@@ -2,6 +2,7 @@ package com.trzebiatowski.serkowski.biometricdatacollector.ui.activity;
 
 import static com.trzebiatowski.serkowski.biometricdatacollector.utility.FileOperations.getFolderSize;
 import static com.trzebiatowski.serkowski.biometricdatacollector.utility.FileOperations.readConfigFile;
+import static com.trzebiatowski.serkowski.biometricdatacollector.utility.FileOperations.readFromFile;
 import static com.trzebiatowski.serkowski.biometricdatacollector.utility.FileOperations.removeFolderContents;
 import static com.trzebiatowski.serkowski.biometricdatacollector.utility.FileOperations.writeToFile;
 
@@ -9,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.Manifest;
 import android.app.AlarmManager;
+import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -18,6 +20,8 @@ import android.os.SystemClock;
 import android.view.View;
 import android.widget.TextView;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.listener.single.DialogOnDeniedPermissionListener;
 import com.karumi.dexter.listener.single.PermissionListener;
@@ -56,12 +60,15 @@ public class TestActivity extends AppCompatActivity {
                 .withListener(dialogPermissionListener)
                 .check();
 
-        /*PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
-        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
-                "MyApp::MyWakelockTag");
-        wakeLock.acquire(10*60*1000L);*/
-
-        configData = readConfigFile(this);
+        String configString = readFromFile("config.json", this);
+        if("".equals(configString)) {
+            ServerApplicationClient client = new ServerApplicationClient("https://biometrical-collector.herokuapp.com",
+                    "config", "");
+            client.getConfigFile(this);
+        }
+        else {
+            getConfigFromMemory();
+        }
 
         TextView accFileText = findViewById(R.id.accelerometerTextView);
         TextView gyroFileText = findViewById(R.id.gyroscopeTextView);
@@ -74,6 +81,16 @@ public class TestActivity extends AppCompatActivity {
         gyrolength = gyrolength / 1000;
         gyroFileText.setText(MessageFormat.format("Gyroscope file size: {0,number,#.##}", gyrolength));
 
+    }
+
+    private void getConfigFromMemory() {
+        try {
+            configData = readConfigFile(this);
+        } catch (JsonMappingException | JsonParseException e) {
+            showErrorDialog(this,
+                    "There was an error parsing the config file. Please contact the person conducting this research.");
+            writeToFile(this, "", "config.json", true);
+        }
     }
 
     @Override
@@ -102,26 +119,31 @@ public class TestActivity extends AppCompatActivity {
     }
 
     public void deleteFilesContent(View v) {
-        /*String accPath = "acc_data.txt";
-        String gyroPath = "gyro_data.txt";
-        String touchPath = "touch_data.txt";
-        String swipePath = "swipe_data.txt";
-
-        writeToFile(getApplicationContext(), "", accPath, true);
-        writeToFile(getApplicationContext(), "", gyroPath, true);
-        writeToFile(getApplicationContext(), "", touchPath, true);
-        writeToFile(getApplicationContext(), "", swipePath, true);*/
-
         removeFolderContents(getApplicationContext(), "accelerometer");
         removeFolderContents(getApplicationContext(), "gyroscope");
         removeFolderContents(getApplicationContext(), "swipe");
         removeFolderContents(getApplicationContext(), "touch");
         removeFolderContents(getApplicationContext(), "answers");
         writeToFile(this, "", "id.txt", true);
+        writeToFile(this, "", "config.json", true);
+    }
+
+    private void showErrorDialog(Context context, String text) {
+        new AlertDialog.Builder(context)
+                .setTitle("Error")
+                .setMessage(text)
+                .setNeutralButton("OK", null)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
     }
 
     public void startService(View v) {
-
+        if(configData == null) {
+            getConfigFromMemory();
+            if(configData == null) {
+                return;
+            }
+        }
         AlarmManager alarmMgr = (AlarmManager)this.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(this, StartDataCollectionReceiver.class);
         intent.putExtra("collectionTimeSeconds", configData.getCollectionTimeSeconds());
@@ -161,7 +183,8 @@ public class TestActivity extends AppCompatActivity {
     }
 
     public void sendData(View v) {
-        ServerApplicationClient client = new ServerApplicationClient("https://mock.codes/202");
+        ServerApplicationClient client = new ServerApplicationClient("https://mock.codes/202",
+                "", "");
 
         try {
             client.sendData(this);

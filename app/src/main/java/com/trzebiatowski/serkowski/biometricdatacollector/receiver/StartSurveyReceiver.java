@@ -44,11 +44,12 @@ public class StartSurveyReceiver extends BroadcastReceiver {
 
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
-                .setContentTitle("Survey ready!")
+                .setContentTitle("Survey ready! Tap this to fill it out.")
                 .setContentText("Please fill it out as soon as possible. Thank you!")
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setContentIntent(pendingNotificationIntent)
                 .addAction(postponeAction)
+                .setOngoing(true)
                 .setAutoCancel(true);
 
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);

@@ -2,17 +2,21 @@ package com.trzebiatowski.serkowski.biometricdatacollector.client;
 
 import static com.trzebiatowski.serkowski.biometricdatacollector.utility.FileOperations.getUserId;
 import static com.trzebiatowski.serkowski.biometricdatacollector.utility.FileOperations.readFromFile;
+import static com.trzebiatowski.serkowski.biometricdatacollector.utility.FileOperations.writeToFile;
 
+import android.app.Activity;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.os.Build;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.trzebiatowski.serkowski.biometricdatacollector.R;
+import com.trzebiatowski.serkowski.biometricdatacollector.dto.ConfigFileDto;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,17 +29,46 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 public class ServerApplicationClient {
 
     public static final String CHANNEL_ID = "SendDataNotificationChannel";
     public static final int FAILURE_NOTIFICATION_ID = 31;
 
-    private String serverUrl;
+    private final String serverUrl;
+    private final String getConfigEndpoint;
+    private final String postDataEndpoint;
     private final OkHttpClient client = new OkHttpClient();
 
-    public ServerApplicationClient(String serverUrl) {
+    public ServerApplicationClient(String serverUrl, String getConfigEndpoint, String postDataEndpoint) {
         this.serverUrl = serverUrl;
+        this.getConfigEndpoint = getConfigEndpoint;
+        this.postDataEndpoint = postDataEndpoint;
+    }
+
+    public void getConfigFile(Activity context) {
+        Request request = new Request.Builder()
+                .url(serverUrl + "/" + getConfigEndpoint)
+                .build();
+
+        Call call = client.newCall(request);
+        call.enqueue(new Callback() {
+            public void onResponse(Call call, Response response) throws IOException {
+                String body = response.body().string();
+                if(response.isSuccessful()) {
+                    createToast(context, "Received config");
+                    writeToFile(context, body, "config.json", true);
+                }
+                else {
+                    createToast(context, "Failed to get configuration from server. Please relaunch the application and try again.");
+                }
+            }
+
+            public void onFailure(Call call, IOException e) {
+                createToast(context, "Failed to get configuration from server. Please relaunch the application and try again.");
+            }
+        });
     }
 
     public void sendData(Context context) throws IOException {
@@ -67,7 +100,7 @@ public class ServerApplicationClient {
                 .enqueue(new Callback() {
                     @Override
                     public void onFailure(final Call call, IOException e) {
-                        createFailureNotification(context, "Please try again soon");
+                        createFailureNotification(context, "Data send failed.",  "Please try again soon");
                     }
 
                     @Override
@@ -82,7 +115,7 @@ public class ServerApplicationClient {
                         }
                         else {
                             String notificationText = "Server returned response with code " + response.code();
-                            createFailureNotification(context, notificationText);
+                            createFailureNotification(context, "Data send failed.", notificationText);
                         }
                     }
                 });
@@ -94,20 +127,6 @@ public class ServerApplicationClient {
         removeFolderContents(getApplicationContext(), "touch");
         removeFolderContents(getApplicationContext(), "answers");
         */
-    }
-
-    private void createFailureNotification(Context context, String contentText) {
-        createNotificationChannel(context);
-
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
-                .setContentTitle("Data send failed.")
-                .setContentText(contentText)
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
-                .setAutoCancel(true);
-
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-
-        notificationManager.notify(FAILURE_NOTIFICATION_ID, builder.build());
     }
 
     @NonNull
@@ -135,12 +154,33 @@ public class ServerApplicationClient {
                 .build();
 
         return new Request.Builder()
-                .url(serverUrl)
+                .url(serverUrl + "/" + postDataEndpoint)
                 .post(requestBody)
                 .build();
     }
 
+    private void createFailureNotification(Context context, String title, String contentText) {
+        createNotificationChannel(context);
 
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
+                .setContentTitle(title)
+                .setContentText(contentText)
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setAutoCancel(true);
+
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
+
+        notificationManager.notify(FAILURE_NOTIFICATION_ID, builder.build());
+    }
+
+    private void createToast(Activity context, String text) {
+        context.runOnUiThread(() -> {
+            int duration = Toast.LENGTH_LONG;
+
+            Toast toast = Toast.makeText(context, text, duration);
+            toast.show();
+        });
+    }
 
     private void createNotificationChannel(Context ctx) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

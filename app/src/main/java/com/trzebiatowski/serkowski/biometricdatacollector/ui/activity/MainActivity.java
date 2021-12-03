@@ -1,10 +1,13 @@
 package com.trzebiatowski.serkowski.biometricdatacollector.ui.activity;
 
 import static com.trzebiatowski.serkowski.biometricdatacollector.utility.FileOperations.readConfigFile;
+import static com.trzebiatowski.serkowski.biometricdatacollector.utility.FileOperations.readFromFile;
+import static com.trzebiatowski.serkowski.biometricdatacollector.utility.FileOperations.writeToFile;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.AlarmManager;
+import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -13,6 +16,8 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.view.View;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.trzebiatowski.serkowski.biometricdatacollector.R;
 import com.trzebiatowski.serkowski.biometricdatacollector.client.ServerApplicationClient;
 import com.trzebiatowski.serkowski.biometricdatacollector.dto.ConfigFileDto;
@@ -32,11 +37,44 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        configData = readConfigFile(this);
+
+        String configString = readFromFile("config.json", this);
+        if("".equals(configString)) {
+            ServerApplicationClient client = new ServerApplicationClient("https://biometrical-collector.herokuapp.com",
+                    "config", "");
+            client.getConfigFile(this);
+        }
+        else {
+            getConfigFromMemory();
+        }
+    }
+
+    private void getConfigFromMemory() {
+        try {
+            configData = readConfigFile(this);
+        } catch (JsonMappingException | JsonParseException e) {
+            showErrorDialog(this,
+                    "There was an error parsing the config file. Please contact the person conducting this research.");
+            writeToFile(this, "", "config.json", true);
+        }
+    }
+
+    private void showErrorDialog(Context context, String text) {
+        new AlertDialog.Builder(context)
+                .setTitle("Error")
+                .setMessage(text)
+                .setNeutralButton("OK", null)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
     }
 
     public void startService(View v) {
-
+        if(configData == null) {
+            getConfigFromMemory();
+            if(configData == null) {
+                return;
+            }
+        }
         AlarmManager alarmMgr = (AlarmManager)this.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(this, StartDataCollectionReceiver.class);
         intent.putExtra("collectionTimeSeconds", configData.getCollectionTimeSeconds());
@@ -76,7 +114,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void sendData(View v) {
-        ServerApplicationClient client = new ServerApplicationClient("https://mock.codes/202");
+        ServerApplicationClient client = new ServerApplicationClient("https://mock.codes/202",
+                "", "");
 
         try {
             client.sendData(this);

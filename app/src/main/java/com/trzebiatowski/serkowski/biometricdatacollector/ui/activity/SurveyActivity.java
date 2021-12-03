@@ -16,6 +16,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.trzebiatowski.serkowski.biometricdatacollector.R;
 import com.trzebiatowski.serkowski.biometricdatacollector.receiver.StopDataCollectionReceiver;
 import com.trzebiatowski.serkowski.biometricdatacollector.dto.ConfigFileDto;
@@ -59,7 +61,13 @@ public class SurveyActivity extends AppCompatActivity {
         manager = getSupportFragmentManager();
 
         if (savedInstanceState == null) {
-            configData = readConfigFile(this);
+
+            try {
+                configData = readConfigFile(this);
+            } catch (JsonMappingException | JsonParseException e) {
+                throw new RuntimeException("Exception encountered when parsing config file.", e);
+            }
+
             if(extras == null) {
                 currentFileSuffix = getIntent().getStringExtra("currentFileSuffix");
             }
@@ -84,8 +92,7 @@ public class SurveyActivity extends AppCompatActivity {
 
         if(!firstCall) {
             if (v.getTag().equals("noQuestionsLeft")) {
-                Intent intent = new Intent(this, TestActivity.class);
-                startActivity(intent);
+                this.finish();
                 return;
             }
             else {

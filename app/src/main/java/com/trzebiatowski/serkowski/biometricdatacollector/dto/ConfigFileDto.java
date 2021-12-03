@@ -1,24 +1,28 @@
 package com.trzebiatowski.serkowski.biometricdatacollector.dto;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.ArrayList;
 import java.util.Objects;
 
 public class ConfigFileDto {
 
-    private int collectionTimeSeconds;
-    private int timeBetweenSurveysMinutes;
-    private int postponeTimeSeconds;
+    private final int collectionTimeSeconds;
+    private final int timeBetweenSurveysMinutes;
+    private final int postponeTimeSeconds;
 
-    private ArrayList<QuestionDto> questions;
+    private final ArrayList<QuestionDto> questions;
 
-    public ConfigFileDto(int collectionTimeSeconds, int timeBetweenSurveysMinutes, int postponeTimeSeconds, ArrayList<QuestionDto> questions) {
+    @JsonCreator
+    public ConfigFileDto(@JsonProperty(value = "collectionTimeSeconds", required=true) int collectionTimeSeconds,
+                         @JsonProperty(value = "timeBetweenSurveysMinutes", required=true) int timeBetweenSurveysMinutes,
+                         @JsonProperty(value = "postponeTimeSeconds", required=true) int postponeTimeSeconds,
+                         @JsonProperty(value = "questions", required=true) ArrayList<QuestionDto> questions) {
         this.collectionTimeSeconds = collectionTimeSeconds;
         this.timeBetweenSurveysMinutes = timeBetweenSurveysMinutes;
         this.postponeTimeSeconds = postponeTimeSeconds;
         this.questions = questions;
-    }
-
-    public ConfigFileDto() {
     }
 
     public int getCollectionTimeSeconds() {

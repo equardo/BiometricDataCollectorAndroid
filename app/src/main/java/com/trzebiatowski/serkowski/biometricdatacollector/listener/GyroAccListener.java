@@ -98,7 +98,7 @@ public class GyroAccListener implements SensorEventListener {
             firstGyroCall = false;
         }
         else {
-            writeToFile(context, ",", "accelerometer", accPath, false);
+            writeToFile(context, ",", "gyroscope", accPath, false);
         }
 
         String toFile = String.format("{t:%d, x: %.4f, y: %.4f, z: %.4f}", actualGyroTime, x, y, z);

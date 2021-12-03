@@ -14,8 +14,8 @@
     <string name="question_loading_error_text">Error while loading question.</string>
     <string name="title_activity_main">MainActivity</string>
 
-    <string name="app_usage_text">To use the app, press "Start collection" when available to fill out surveys. A notification will be shown when a survey is ready.<br/> When you\'re going to be unavailable (for example at night), press "Stop collection".<br/> Send data often, Wi-Fi recommended.</string>
-    <string name="start_collection_button_text">Start collection</string>
-    <string name="stop_collection_buton_text">Stop collection</string>
+    <string name="app_usage_text">To use the app, press "Start collection" when available to fill out surveys. A notification will be shown when a survey is ready.\n\nWhen you\'re going to be unavailable (for example at night), press "Stop collection".\n\nSend data often, Wi-Fi recommended.</string>
+    <string name="start_collection_button_text">Start\ncollection</string>
+    <string name="stop_collection_buton_text">Stop\ncollection</string>
     <string name="send_data_button_text">Send data</string>
 </resources>

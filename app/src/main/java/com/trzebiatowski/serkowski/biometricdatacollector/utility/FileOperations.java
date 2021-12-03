@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.res.AssetManager;
 import android.util.Log;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.trzebiatowski.serkowski.biometricdatacollector.dto.ConfigFileDto;
 
@@ -178,23 +180,18 @@ public class FileOperations {
         return result;
     }
 
-    public static ConfigFileDto readConfigFile(Context ctx){
+    public static ConfigFileDto readConfigFile(Context context) throws JsonMappingException, JsonParseException {
         try {
+            String configString = readFromFile("config.json", context);
+
             ObjectMapper objectMapper = new ObjectMapper();
 
-            AssetManager am = ctx.getAssets();
-            InputStream stream = am.open("biometricdatacollector-survey.json");
+            return objectMapper.readValue(configString, ConfigFileDto.class);
 
-            BufferedReader r = new BufferedReader(new InputStreamReader(stream));
-            StringBuilder total = new StringBuilder();
-
-            for (String line; (line = r.readLine()) != null; ) {
-                total.append(line).append('\n');
-            }
-
-            return objectMapper.readValue(total.toString(), ConfigFileDto.class);
-
-        } catch (Exception e) {
+        } catch (JsonMappingException | JsonParseException e) {
+            throw e;
+        }
+        catch (Exception e) {
             e.printStackTrace();
         }
         return null;

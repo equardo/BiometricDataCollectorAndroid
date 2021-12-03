@@ -25,8 +25,8 @@ public class FileViewActivity extends AppCompatActivity {
         accFileText = findViewById(R.id.accFileView);
         gyroFileText = findViewById(R.id.gyroFileView);
 
-        accFileText.setText(getFileData("touch")); //getFileData("touch")
-        gyroFileText.setText(getFileData("swipe"));
+        accFileText.setText(getFileData("answers")); //getFileData("touch")
+        gyroFileText.setText(getFileData("touch"));
     }
 
     private String getFileData(String dirname) {
