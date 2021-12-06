@@ -1,5 +1,6 @@
 package com.trzebiatowski.serkowski.biometricdatacollector.ui.activity;
 
+import static com.trzebiatowski.serkowski.biometricdatacollector.utility.FileOperations.deleteUntaggedDataFiles;
 import static com.trzebiatowski.serkowski.biometricdatacollector.utility.FileOperations.readConfigFile;
 import static com.trzebiatowski.serkowski.biometricdatacollector.utility.FileOperations.readFromFile;
 import static com.trzebiatowski.serkowski.biometricdatacollector.utility.FileOperations.writeToFile;
@@ -13,7 +14,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.view.View;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.trzebiatowski.serkowski.biometricdatacollector.R;
 import com.trzebiatowski.serkowski.biometricdatacollector.client.ServerApplicationClient;
 import com.trzebiatowski.serkowski.biometricdatacollector.dto.ConfigFileDto;
+import com.trzebiatowski.serkowski.biometricdatacollector.receiver.PostponeSurveyReceiver;
 import com.trzebiatowski.serkowski.biometricdatacollector.receiver.StartDataCollectionReceiver;
 import com.trzebiatowski.serkowski.biometricdatacollector.receiver.StartSurveyReceiver;
 import com.trzebiatowski.serkowski.biometricdatacollector.receiver.StopDataCollectionReceiver;
@@ -32,16 +33,19 @@ public class MainActivity extends AppCompatActivity {
 
     private ConfigFileDto configData;
     private static final int SURVEY_NOTIFICATION_ID = 2;
+    private ServerApplicationClient client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+        client = new ServerApplicationClient("https://biometrical-collector.herokuapp.com",
+                "config", "insert_multipart");
+
         String configString = readFromFile("config.json", this);
         if("".equals(configString)) {
-            ServerApplicationClient client = new ServerApplicationClient("https://biometrical-collector.herokuapp.com",
-                    "config", "");
             client.getConfigFile(this);
         }
         else {
@@ -75,48 +79,59 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
         }
-        AlarmManager alarmMgr = (AlarmManager)this.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(this, StartDataCollectionReceiver.class);
         intent.putExtra("collectionTimeSeconds", configData.getCollectionTimeSeconds());
         intent.putExtra("postponeTimeSeconds", configData.getPostponeTimeSeconds());
-        PendingIntent alarmIntent = PendingIntent.getBroadcast(this, 2, intent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
+        intent.putExtra("timeBetweenSurveys", configData.getTimeBetweenSurveysMinutes());
 
-        alarmMgr.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                SystemClock.elapsedRealtime() +
-                        5 * 1000, alarmIntent);
-
+        sendBroadcast(intent);
     }
 
     public void stopService(View v) {
         Intent serviceIntent = new Intent(this, GyroAccService.class);
         getApplicationContext().stopService(serviceIntent);
 
+        cancelAlarms();
+
+        NotificationManager nMgr = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
+        nMgr.cancel(SURVEY_NOTIFICATION_ID);
+
+        removeUntaggedData();
+    }
+
+    private void removeUntaggedData() {
+        deleteUntaggedDataFiles(this, "accelerometer");
+        deleteUntaggedDataFiles(this, "gyroscope");
+        deleteUntaggedDataFiles(this, "touch");
+        deleteUntaggedDataFiles(this, "swipe");
+    }
+
+    private void cancelAlarms() {
         AlarmManager alarmMgr = (AlarmManager)this.getSystemService(Context.ALARM_SERVICE);
 
         Intent startCollectionIntent = new Intent(this, StartDataCollectionReceiver.class);
+        Intent createSurveyNotificationIntent = new Intent(this, StartSurveyReceiver.class);
+        Intent stopCollectionIntent = new Intent(this, StopDataCollectionReceiver.class);
+        Intent postponeIntent = new Intent(this, PostponeSurveyReceiver.class);
+
         PendingIntent pendingStartCollectionIntent = PendingIntent.getBroadcast(this, 4,
                 startCollectionIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         alarmMgr.cancel(pendingStartCollectionIntent);
 
-        Intent createSurveyNotificationIntent = new Intent(this, StartSurveyReceiver.class);
+        PendingIntent pendingPostponeIntent = PendingIntent.getBroadcast(this,
+                9, postponeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        alarmMgr.cancel(pendingPostponeIntent);
+
         PendingIntent pendingCreateSurveyNotificationIntent = PendingIntent.getBroadcast(this, 3,
                 createSurveyNotificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         alarmMgr.cancel(pendingCreateSurveyNotificationIntent);
 
-        Intent stopCollectionIntent = new Intent(this, StopDataCollectionReceiver.class);
         PendingIntent pendingStopCollectionIntent = PendingIntent.getBroadcast(this, 5,
                 stopCollectionIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         alarmMgr.cancel(pendingStopCollectionIntent);
-
-        NotificationManager nMgr = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
-        nMgr.cancel(SURVEY_NOTIFICATION_ID);
     }
 
     public void sendData(View v) {
-        ServerApplicationClient client = new ServerApplicationClient("https://mock.codes/202",
-                "", "");
-
         try {
             client.sendData(this);
         } catch (IOException e) {
